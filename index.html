@@ -86,17 +86,22 @@ img {
     const counterDisplay = document.getElementById('counter');
 
     let level = 1;
+    const speed = 350; // adjust if you want dynamic speed later
 
     const animalsByLevel = [
-      ['cat.jpg', 'dog.jpg'],           
-      ['cat.jpg', 'dog.jpg', 'pig.jpg', 'cow.jpg'],  
-      ['cat.jpg', 'dog.jpg', 'pig.jpg', 'cow.jpg', 'bear.jpg', 'rabbit.jpg', 'mouse.jpg']
+        ['cat.jpg', 'dog.jpg'],           
+        ['cat.jpg', 'dog.jpg', 'horse.jpg', 'cow.jpg'],  
+        ['cat.jpg', 'dog.jpg', 'horse.jpg', 'cow.jpg', 'bird.jpg', 'rabbit.jpg'],  
+        ['cat.jpg', 'dog.jpg', 'horse.jpg', 'cow.jpg', 'bird.jpg', 'rabbit.jpg', 'pig.jpg', 'mouse.jpg'],  
+        ['cat.jpg', 'dog.jpg', 'horse.jpg', 'cow.jpg', 'bird.jpg', 'rabbit.jpg', 'pig.jpg', 'mouse.jpg', 'bear.jpg', 'chicken.jpg']
     ];
 
     function getAnimalPool(level) {
       if(level <= 2) return animalsByLevel[0];
-      if(level <= 5) return animalsByLevel[1];
-      return animalsByLevel[2];
+      if(level <= 4) return animalsByLevel[1];
+      if(level <= 6) return animalsByLevel[2];
+      if(level <= 8) return animalsByLevel[3];
+      return animalsByLevel[4];
     }
 
     function generateSequence(level){
@@ -118,35 +123,22 @@ img {
       });
     }
 
-    function playSequence(sequence, callback){
-      let i = 0;
-      function highlightNext() {
-        if(i > 0) boxes[i-1].classList.remove('highlight');
-        if(i < sequence.length){
-          boxes[i].classList.add('highlight');
-          i++;
-          setTimeout(highlightNext, 400);
-        } else {
-          boxes[sequence.length-1].classList.remove('highlight');
-          if(callback) callback();
-        }
-      }
-      highlightNext();
+    // Highlight beep
+    function playBeep() {
+      const beep = new Audio('beep.mp3'); 
+      beep.play().catch(e => console.log('Beep blocked until user interacts:', e));
     }
 
-    // Web Audio API beep
-    function playBeep() {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = ctx.createOscillator();
-      const gainNode = ctx.createGain();
+    // Array of 8 count-in sounds
+    const countSounds = [
+      '1.m4a', '2.m4a', '3.m4a', '4.m4a',
+      '5.m4a', '6.m4a', '7.m4a', '8.m4a'
+    ];
 
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(800, ctx.currentTime);
-      oscillator.connect(gainNode);
-      gainNode.connect(ctx.destination);
-
-      oscillator.start();
-      oscillator.stop(ctx.currentTime + 0.15); // 150ms beep
+    function playCountSound(index){
+      if(index < 0 || index >= countSounds.length) return;
+      const audio = new Audio(countSounds[index]);
+      audio.play().catch(e => console.log('Count sound blocked until user interacts:', e));
     }
 
     function playBeepCountIn(callback){
@@ -154,15 +146,32 @@ img {
       function step() {
         if(count <= 8){
           counterDisplay.textContent = count;
-          playBeep();  // beep on each count
+          playCountSound(count - 1); // play corresponding sound
           count++;
-          setTimeout(step, 400);
+          setTimeout(step, speed);
         } else {
           counterDisplay.textContent = '';
           if(callback) callback();
         }
       }
       step();
+    }
+
+    function playSequence(sequence, callback){
+      let i = 0;
+      function highlightNext() {
+        if(i > 0) boxes[i-1].classList.remove('highlight');
+        if(i < sequence.length){
+          boxes[i].classList.add('highlight');
+          playBeep(); // beep for highlighting
+          i++;
+          setTimeout(highlightNext, speed);
+        } else {
+          boxes[sequence.length-1].classList.remove('highlight');
+          if(callback) callback();
+        }
+      }
+      highlightNext();
     }
 
     function startLevel() {
@@ -173,8 +182,8 @@ img {
       playBeepCountIn(() => {
         playSequence(sequence, () => {
           level++;
-          if(level > 10) level = 1; // loop back
-          setTimeout(startLevel, 1); // 1s pause
+          if(level > 50) level = 1; // loop back
+          setTimeout(startLevel, 1);
         });
       });
     }
