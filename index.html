@@ -86,7 +86,7 @@ img {
     const counterDisplay = document.getElementById('counter');
 
     let level = 1;
-    const speed = 350; // adjust if you want dynamic speed later
+    const speed = 380; // adjust if you want dynamic speed later
 
     const animalsByLevel = [
         ['cat.jpg', 'dog.jpg'],           
@@ -98,9 +98,9 @@ img {
 
     function getAnimalPool(level) {
       if(level <= 2) return animalsByLevel[0];
-      if(level <= 4) return animalsByLevel[1];
-      if(level <= 6) return animalsByLevel[2];
-      if(level <= 8) return animalsByLevel[3];
+      if(level <= 3) return animalsByLevel[1];
+      if(level <= 4) return animalsByLevel[2];
+      if(level <= 5) return animalsByLevel[3];
       return animalsByLevel[4];
     }
 
@@ -125,15 +125,19 @@ img {
 
     // Highlight beep
     function playBeep() {
-      const beep = new Audio('beep.mp3'); 
+      const beep = new Audio('short.mp3'); 
       beep.play().catch(e => console.log('Beep blocked until user interacts:', e));
     }
 
     // Array of 8 count-in sounds
     const countSounds = [
-      '1.m4a', '2.m4a', '3.m4a', '4.m4a',
-      '5.m4a', '6.m4a', '7.m4a', '8.m4a'
+      'beep.mp3','beep.mp3','beep.mp3','beep.mp3','beep.mp3','beep.mp3','beep.mp3','beep.mp3'
     ];
+
+    // const countSounds = [
+    //   '1.m4a', '2.m4a', '3.m4a', '4.m4a',
+    //   '5.m4a', '6.m4a', '7.m4a', '8.m4a'
+    // ];
 
     function playCountSound(index){
       if(index < 0 || index >= countSounds.length) return;
